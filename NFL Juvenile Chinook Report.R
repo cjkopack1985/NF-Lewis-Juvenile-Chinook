@@ -264,8 +264,14 @@ plot_data <- plot_data %>%
   left_join(fall_bright_summary_lag, by = "Year") %>%
   select(Year, Tags.released, Spawners, everything())
 
-geomean<-exp(mean(log(plot_data$Tags.released)))
-geomean
+tag_geomean<-exp(mean(log(plot_data$Tags.released)))
+tag_geomean
+
+esc_geomean<-exp(mean(log(plot_data$Spawners)))
+esc_geomean
+
+dis_geomean<-exp(mean(log(plot_data$median_flow)))
+dis_geomean
 
 
 
