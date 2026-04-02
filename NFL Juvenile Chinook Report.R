@@ -38,6 +38,7 @@ library(stringi)
 library(tidyr)
 library(ggrepel)
 library(scales)
+library(glue)
 
 #-----------------------------
 # User Inputs
@@ -47,6 +48,13 @@ param_cd <- "00060"
 stat_cd  <- "00003"
 
 years <- 2016:2025
+
+#-----------------------------
+# Import Data
+#-----------------------------
+ui_datafiles_wd <-c("/data") #glue("T:/DFW-Team FP R5 Chum - General/Analysis/Juvenile_estimates/data/{ui_trap_year}")
+ui_dataname_catch <- c("2025CatchData.csv")
+ui_dataname_esc <- c("NFLAdultChinookAbundance_2024.csv")
 
 
 
@@ -198,9 +206,7 @@ ggsave(
 # 3 — CATCH DATA PIPELINE
 #===============================================================================
 
-catch_data <- read.csv(
-  "C:/Users/kopcj477/OneDrive - Washington State Executive Branch Agencies/Desktop/2025CatchData.csv"
-)
+catch_data <- read.csv(file = glue("{here::here()}/{ui_datafiles_wd}/{ui_dataname_catch}")) #read.csv("C:/Users/kopcj477/OneDrive - Washington State Executive Branch Agencies/Desktop/2025CatchData.csv")
 
 catch_data <- catch_data %>%
   mutate(Year = as.numeric(Year))
@@ -211,10 +217,8 @@ catch_data <- catch_data %>%
 # 4 — ABUNDANCE DATA PIPELINE
 #===============================================================================
 
-abundance_data <- read.csv(
-  "C:/Users/kopcj477/OneDrive - Washington State Executive Branch Agencies/Desktop/NFLAdultChinookAbundance_2024.csv",
-  fileEncoding = "Latin1"
-)
+abundance_data <- read.csv(file = glue("{here::here()}/{ui_datafiles_wd}/{ui_dataname_esc}"),
+  fileEncoding = "Latin1")
 
 abundance_data <- abundance_data %>%
   mutate(across(where(is.character), ~stri_trim_both(.))) %>%
@@ -254,7 +258,7 @@ plot_data <- left_join(catch_data, flow_summary, by = "Year")
 scale_factor <- max(plot_data$Tags.released, na.rm = TRUE) /
   max(plot_data$mean_flow, na.rm = TRUE)
 
-plot_data <- plot_data[, -c(2,4)]
+plot_data <- plot_data[, -c(2,4,5)]
 
 plot_data <- plot_data %>%
   left_join(fall_bright_summary_lag, by = "Year") %>%
@@ -270,13 +274,12 @@ geomean
 #===============================================================================
 
 #-----------------------------
-# 6.1 - Table B1: Tagging Summary Data
+# 6.1 - Table 1: Tagging Summary Data
 #-----------------------------
 write.csv(
   plot_data,
-  "C:/Users/kopcj477/OneDrive - Washington State Executive Branch Agencies/Desktop/Table_B1_NF_Lewis_Tagging_Data_2016_2025.csv",
-  row.names = FALSE
-)
+  "C:/Users/kopcj477/OneDrive - Washington State Executive Branch Agencies/Desktop/Table_1_NF_Lewis_Tagging_Data_2016_2025.csv",
+  row.names = FALSE)
 
 #-----------------------------
 # 6.2 - Figure 3: Tags vs Discharge
